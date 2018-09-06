@@ -56,8 +56,9 @@ public class Tds_Character : MonoBehaviour {
 
 	//if player, we show these icon on mouse position
 	private GameObject vAimIcon = null;
-	private GameObject vCurrentIcon = null;
-	private Tds_GameManager vGameManager = null;
+    private GameObject vCurrentIcon = null;
+    private GameObject vCurrentIcon2 = null;
+    private Tds_GameManager vGameManager = null;
 	private Tds_Loot vCurLoot = null;
 	private float TimeToReload = 0f;
 	private GameObject vMainPlayer;
@@ -85,6 +86,9 @@ public class Tds_Character : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+        if (Input.GetButtonDown("Jump"))
+            Debug.Log("A");
 
 		//check if the character is ready
 		if (vGameManager != null && IsAlive) {
@@ -117,18 +121,36 @@ public class Tds_Character : MonoBehaviour {
 
                 if (IsPlayer) {
 
-                    //player get mouse position instead of its' own position
-                    //vTargetPosition = Input.mousePosition;
-
+                  
                     if (Mathf.Round(Input.GetAxisRaw("LeftTrigger")) > 0 && Mathf.Round(Input.GetAxisRaw("RightTrigger")) > 0)
                     {
+                        if (vCurrentIcon2 && !vCurrentIcon2.active)
+                        {
+                            vCurrentIcon2.active = true;
+                        }
+
+                        if (Input.GetAxis("Horizontal") > 0 || Input.GetAxis("Horizontal") < -0 || Input.GetAxis("Vertical") < -0 || Input.GetAxis("Vertical") > 0)
+                        {
+                            float rx = Input.GetAxis("Horizontal");
+                            float ry = Input.GetAxis("Vertical");
+
+                            Vector3 pz = new Vector3(rx, ry, 0);
+
+                            pz = pz.normalized;
+
+                            vCurrentIcon2.transform.localPosition = pz;
+                        }
+
                         ListWeapons[vCurWeapIndex].vTimeBtwShot = 0.02f; 
-                        Time.timeScale = 0.1f;
+                        Time.timeScale = 0.25f;
                         BulletTime = true;
                     }
 
                     else
                     {
+                        if(vCurrentIcon2)
+                            vCurrentIcon2.active = false;
+
                         Time.timeScale = 1.0f;
                         BulletTime = false;
                         ListWeapons[vCurWeapIndex].vTimeBtwShot = 0.1f;
@@ -163,8 +185,13 @@ public class Tds_Character : MonoBehaviour {
 					
 					if (vAimIcon != null && vCurrentIcon == null) {
                         vCurrentIcon = Instantiate(vAimIcon, transform);
-                        vCurrentIcon.transform.position = transform.position;
+                        vCurrentIcon.transform.localPosition = new Vector3(0.0f, 1.0f, 0.0f);
                         vCurrentIcon.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+
+                        vCurrentIcon2 = Instantiate(vAimIcon, transform);
+                        vCurrentIcon2.transform.localPosition = new Vector3(0.0f, 1.0f, 0.0f);
+                        vCurrentIcon2.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                        vCurrentIcon2.active = false;
 
                     } else if (vCurrentIcon != null) {
                         if (Input.GetAxis("Right X") > 0 || Input.GetAxis("Right X") < -0 || Input.GetAxis("Right Y") < -0 || Input.GetAxis("Right Y") > 0)
@@ -175,11 +202,6 @@ public class Tds_Character : MonoBehaviour {
                             Vector3 pz = new Vector3(rx, ry, 0);
 
                             pz = pz.normalized;
-
-                            //pz.x -= 0.1f;
-
-                            //Debug.Log(pz);
-                            //float angle = Mathf.Atan2(rx, ry);
 
                             vCurrentIcon.transform.localPosition = pz;
                         }
@@ -993,4 +1015,8 @@ public class Tds_Character : MonoBehaviour {
 
 		return vangle;
 	}
+}
+
+internal class Gameobject
+{
 }
