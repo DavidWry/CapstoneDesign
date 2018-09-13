@@ -87,9 +87,6 @@ public class Tds_Character : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        if (Input.GetButtonDown("Jump"))
-            Debug.Log("A");
-
 		//check if the character is ready
 		if (vGameManager != null && IsAlive) {
 
@@ -187,10 +184,12 @@ public class Tds_Character : MonoBehaviour {
                         vCurrentIcon = Instantiate(vAimIcon, transform);
                         vCurrentIcon.transform.localPosition = new Vector3(0.0f, 1.0f, 0.0f);
                         vCurrentIcon.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                        vCurrentIcon.GetComponent<SpriteRenderer>().color = new Color(255.0f, 0, 0);
 
                         vCurrentIcon2 = Instantiate(vAimIcon, transform);
                         vCurrentIcon2.transform.localPosition = new Vector3(0.0f, 1.0f, 0.0f);
                         vCurrentIcon2.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                        vCurrentIcon2.GetComponent<SpriteRenderer>().color = new Color(0, 0, 255.0f);
                         vCurrentIcon2.active = false;
 
                     } else if (vCurrentIcon != null) {
@@ -1015,8 +1014,4 @@ public class Tds_Character : MonoBehaviour {
 
 		return vangle;
 	}
-}
-
-internal class Gameobject
-{
 }
