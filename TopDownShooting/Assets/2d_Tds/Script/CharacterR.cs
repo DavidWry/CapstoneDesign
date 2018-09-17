@@ -100,7 +100,7 @@ public class CharacterR : MonoBehaviour
                 if (!GameStarted)
                 {
                     GameStarted = true;
-                    ChangeWeapon();
+                    ChangeWeapon(vLeftHandObj);
                 }
 
                 //check if attacking
@@ -145,6 +145,7 @@ public class CharacterR : MonoBehaviour
                             vCurrentIcon2.transform.localPosition = pz;
                         }
 
+                        ChangeWeapon(vRightHandObj);
                         ListWeapons[vCurWeapIndex].vTimeBtwShot = 0.02f;
                         Time.timeScale = 0.25f;
                         BulletTime = true;
@@ -711,7 +712,7 @@ public class CharacterR : MonoBehaviour
         vCurWeapIndex = vNewIndex;
 
         //then change weapon
-        ChangeWeapon();
+        ChangeWeapon(vLeftHandObj);
     }
 
     bool CanRotateBody()
@@ -906,7 +907,7 @@ public class CharacterR : MonoBehaviour
         IsReady = true;
     }
 
-    void ChangeWeapon()
+    void ChangeWeapon(GameObject hand)
     {
         //destroy old weapon if exist
         if (CurWeaponObj != null)
@@ -916,7 +917,7 @@ public class CharacterR : MonoBehaviour
         }
 
         //create the weapon
-        GameObject vNewWeapon = Instantiate(ListWeapons[vCurWeapIndex].vWeaponObj, vLeftHandObj.transform);
+        GameObject vNewWeapon = Instantiate(ListWeapons[vCurWeapIndex].vWeaponObj, hand.transform);
 
         //check if weapon is 2handed
         //if (vBodyAnimator.gameObject.activeSelf)
