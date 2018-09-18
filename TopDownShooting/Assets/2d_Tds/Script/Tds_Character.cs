@@ -23,7 +23,9 @@ public class Tds_Character : MonoBehaviour {
 	public Animator vBodyAnimator;
 	public GameObject vLeftHandObj;
 	public GameObject vRightHandObj;
-	public bool IsReady = false;
+    public GameObject vLeftArmObj;
+    public GameObject vRightArmObj;
+    public bool IsReady = false;
 	private bool LootNearby = false;
 	public AudioClip ReloadAudio;
     public GameObject RightAddPos;
@@ -56,8 +58,9 @@ public class Tds_Character : MonoBehaviour {
 
 	//if player, we show these icon on mouse position
 	private GameObject vAimIcon = null;
-	private GameObject vCurrentIcon = null;
-	private Tds_GameManager vGameManager = null;
+    private GameObject vCurrentIcon = null;
+    private GameObject vCurrentIcon2 = null;
+    private Tds_GameManager vGameManager = null;
 	private Tds_Loot vCurLoot = null;
 	private float TimeToReload = 0f;
 	private GameObject vMainPlayer;
@@ -117,18 +120,36 @@ public class Tds_Character : MonoBehaviour {
 
                 if (IsPlayer) {
 
-                    //player get mouse position instead of its' own position
-                    //vTargetPosition = Input.mousePosition;
-
+                  
                     if (Mathf.Round(Input.GetAxisRaw("LeftTrigger")) > 0 && Mathf.Round(Input.GetAxisRaw("RightTrigger")) > 0)
                     {
+                        if (vCurrentIcon2 && !vCurrentIcon2.active)
+                        {
+                            vCurrentIcon2.active = true;
+                        }
+
+                        if (Input.GetAxis("Horizontal") > 0 || Input.GetAxis("Horizontal") < -0 || Input.GetAxis("Vertical") < -0 || Input.GetAxis("Vertical") > 0)
+                        {
+                            float rx = Input.GetAxis("Horizontal");
+                            float ry = Input.GetAxis("Vertical");
+
+                            Vector3 pz = new Vector3(rx, ry, 0);
+
+                            pz = pz.normalized;
+
+                            vCurrentIcon2.transform.localPosition = pz;
+                        }
+
                         ListWeapons[vCurWeapIndex].vTimeBtwShot = 0.02f; 
-                        Time.timeScale = 0.1f;
+                        Time.timeScale = 0.25f;
                         BulletTime = true;
                     }
 
                     else
                     {
+                        if(vCurrentIcon2)
+                            vCurrentIcon2.active = false;
+
                         Time.timeScale = 1.0f;
                         BulletTime = false;
                         ListWeapons[vCurWeapIndex].vTimeBtwShot = 0.1f;
@@ -163,8 +184,15 @@ public class Tds_Character : MonoBehaviour {
 					
 					if (vAimIcon != null && vCurrentIcon == null) {
                         vCurrentIcon = Instantiate(vAimIcon, transform);
-                        vCurrentIcon.transform.position = transform.position;
+                        vCurrentIcon.transform.localPosition = new Vector3(0.0f, 1.0f, 0.0f);
                         vCurrentIcon.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                        vCurrentIcon.GetComponent<SpriteRenderer>().color = new Color(255.0f, 0, 0);
+
+                        vCurrentIcon2 = Instantiate(vAimIcon, transform);
+                        vCurrentIcon2.transform.localPosition = new Vector3(0.0f, 1.0f, 0.0f);
+                        vCurrentIcon2.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                        vCurrentIcon2.GetComponent<SpriteRenderer>().color = new Color(0, 0, 255.0f);
+                        vCurrentIcon2.active = false;
 
                     } else if (vCurrentIcon != null) {
                         if (Input.GetAxis("Right X") > 0 || Input.GetAxis("Right X") < -0 || Input.GetAxis("Right Y") < -0 || Input.GetAxis("Right Y") > 0)
@@ -175,11 +203,6 @@ public class Tds_Character : MonoBehaviour {
                             Vector3 pz = new Vector3(rx, ry, 0);
 
                             pz = pz.normalized;
-
-                            //pz.x -= 0.1f;
-
-                            //Debug.Log(pz);
-                            //float angle = Mathf.Atan2(rx, ry);
 
                             vCurrentIcon.transform.localPosition = pz;
                         }
@@ -380,6 +403,22 @@ public class Tds_Character : MonoBehaviour {
                                         float newangle = Mathf.Atan2(rx, ry);
                                         vtemp.z = newangle;
                                         vNewProj.transform.eulerAngles = new Vector3(CurWeaponObj.transform.eulerAngles.x, CurWeaponObj.transform.eulerAngles.y, Mathf.Atan2(rx, ry) * Mathf.Rad2Deg);
+
+                                        //calculate the new angle for left arm
+                                        Quaternion vtempAngle = CurWeaponObj.transform.rotation;
+                                        float rtempx = -Input.GetAxis("Horizontal");
+                                        float rtempy = Input.GetAxis("Vertical");
+                                        float newtempangle = Mathf.Atan2(rtempx, rtempy);
+                                        vtempAngle.z = newtempangle;
+                                        vLeftArmObj.transform.eulerAngles = new Vector3(CurWeaponObj.transform.eulerAngles.x, CurWeaponObj.transform.eulerAngles.y, Mathf.Atan2(rtempx, rtempy) * Mathf.Rad2Deg);
+                                        //calculate the new angle for left arm
+                                        Quaternion vtempAngle2 = CurWeaponObj.transform.rotation;
+                                        float rtempx2 = Input.GetAxis("Right X");
+                                        float rtempy2 = -Input.GetAxis("Right Y");
+
+                                        float newtempangle2 = Mathf.Atan2(rtempx2, rtempy2);
+                                        vtempAngle2.z = newtempangle2;
+                                        vRightArmObj.transform.eulerAngles = new Vector3(CurWeaponObj.transform.eulerAngles.x, CurWeaponObj.transform.eulerAngles.y, Mathf.Atan2(rtempx2, rtempy2) * Mathf.Rad2Deg);
                                     }
                                     else
                                     {
@@ -482,6 +521,22 @@ public class Tds_Character : MonoBehaviour {
                                         //Debug.Log(newangle);
                                         vtemp.z = newangle;
                                         vNewProj.transform.eulerAngles = new Vector3(CurWeaponObj.transform.eulerAngles.x, CurWeaponObj.transform.eulerAngles.y, Mathf.Atan2(rx, ry) * Mathf.Rad2Deg);
+
+                                        //calculate the new angle for left arm
+                                        Quaternion vtempAngle = CurWeaponObj.transform.rotation;
+                                        float rtempx = -Input.GetAxis("Horizontal");
+                                        float rtempy = Input.GetAxis("Vertical");
+                                        float newtempangle = Mathf.Atan2(rtempx, rtempy);
+                                        vtempAngle.z = newtempangle;
+                                        vLeftArmObj.transform.eulerAngles = new Vector3(CurWeaponObj.transform.eulerAngles.x, CurWeaponObj.transform.eulerAngles.y, Mathf.Atan2(rtempx, rtempy) * Mathf.Rad2Deg);
+                                        //calculate the new angle for left arm
+                                        Quaternion vtempAngle2 = CurWeaponObj.transform.rotation;
+                                        float rtempx2 = Input.GetAxis("Right X");
+                                        float rtempy2 = -Input.GetAxis("Right Y");
+
+                                        float newtempangle2 = Mathf.Atan2(rtempx2, rtempy2);
+                                        vtempAngle2.z = newtempangle2;
+                                        vRightArmObj.transform.eulerAngles = new Vector3(CurWeaponObj.transform.eulerAngles.x, CurWeaponObj.transform.eulerAngles.y, Mathf.Atan2(rtempx2, rtempy2) * Mathf.Rad2Deg);
                                     }
                                     else
                                     {
@@ -537,9 +592,10 @@ public class Tds_Character : MonoBehaviour {
 
 				//check if walking
 				if (IsWalking) {
-
-					//initialise variable
-					bool vMoveUP = false;
+                    vLeftArmObj.transform.localEulerAngles = new Vector3(0, 0, 0);
+                    vRightArmObj.transform.localEulerAngles = new Vector3(0, 0, 180);
+                    //initialise variable
+                    bool vMoveUP = false;
 					bool vMoveRight = false;
 					bool vMoveLeft = false;
 					bool vMoveDown = false;
@@ -742,10 +798,10 @@ public class Tds_Character : MonoBehaviour {
 	public void RefreshVariables(List<Tds_Tile> vNewList)
 	{
 		//check if there is a wall forward.
-		CanWalk = true;
+		/*CanWalk = true;
 
 		if (vNewList.Count > 0)
-			CanWalk = false;
+			CanWalk = false;*/
 	}
 
 	//make the character die
