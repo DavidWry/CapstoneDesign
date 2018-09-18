@@ -11,4 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c287851136a3561499908cb9db1a5676, type: 3}
   m_Name: TileSet
   m_EditorClassIdentifier: 
-  TileSetPath: C:/Users/jpoulin/Documents/2D TopDown Shooter/Assets/2d_Tds/Resources/PNG/Tiles
+  TileSetPath: C:/Users/Mithun/Documents/GitHub/CapstoneDesign/TopDownShooting/Assets/2d_Tds/Resources/PNG/Tiles

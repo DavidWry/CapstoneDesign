@@ -801,6 +801,7 @@ MonoBehaviour:
   vRightHandObj: {fileID: 1926073332794620}
   IsReady: 1
   ReloadAudio: {fileID: 8300000, guid: 0032f0455f132d24b83db17774df317c, type: 3}
+  RightAddPos: {fileID: 0}
   ListWeapons:
   - vName: ZombieHand
     vWeaponName: 0
