@@ -25,7 +25,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &4168075835694550
 Transform:
@@ -62,6 +62,6 @@ MonoBehaviour:
   vTestText: {fileID: 0}
   OrderLayer: 20
   IsDoor: 0
-  AnimationSpeed: 0.05
+  AnimationSpeed: 0.4
   ShowParticle: 0
-  vTileType: 5
+  vTileType: 0
