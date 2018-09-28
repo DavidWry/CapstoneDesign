@@ -9,7 +9,7 @@ public class Tds_Character : MonoBehaviour {
 	public enum DirectionType{Right, Left, Up, Down};
 	public enum WalkDirection{Right, Left, Up, Down, RightUp, RightDown, LeftUp, LeftDown};
 	public enum FactionType {Friendly, Hostile}
-
+    public GameObject he;
 	public string vName = "";
 	public FactionType vFactionType = FactionType.Hostile;
 	public int HP = 5;
@@ -29,7 +29,7 @@ public class Tds_Character : MonoBehaviour {
 	private bool LootNearby = false;
 	public AudioClip ReloadAudio;
     public GameObject RightAddPos;
-
+    public GameObject he1;
 	private bool IsWalking = false;
 	private bool LastWalkingStatus = false;
 	private bool IsChasing = false;							//check if we are running at the player
@@ -55,7 +55,7 @@ public class Tds_Character : MonoBehaviour {
 	private bool SeePlayer = false;
 	private bool CursorIsNear = false;			//prevent the player to rotate on itself when the cursor is near the player.
 	private int MaxHP = 0; 						//replace this variable with HP so we know how much HP the player has when FULL HP. 
-
+    private int gee = 0;
 	//if player, we show these icon on mouse position
 	private GameObject vAimIcon = null;
     private GameObject vCurrentIcon = null;
@@ -85,30 +85,30 @@ public class Tds_Character : MonoBehaviour {
 		//get the MaxHP
 		MaxHP = HP;
 	}
-	
-	// Update is called once per frame
-	void Update () {
 
-		//check if the character is ready
-		if (vGameManager != null && IsAlive) {
+    // Update is called once per frame
+    void Update() {
 
-			if (vGameManager.IsReady) {
+        //check if the character is ready
+        if (vGameManager != null && IsAlive) {
 
-				//get it's weapon ONLY when the game start
-				if (!GameStarted) {
-					GameStarted = true;
-					ChangeWeapon ();
-				}
+            if (vGameManager.IsReady) {
 
-				//check if attacking
-				bool IsAttacking = false;
+                //get it's weapon ONLY when the game start
+                if (!GameStarted) {
+                    GameStarted = true;
+                    ChangeWeapon();
+                }
+
+                //check if attacking
+                bool IsAttacking = false;
                 bool IsRightAttacking = false;
 
-                Vector3 vTargetPosition =  Camera.main.WorldToScreenPoint(vMainPlayer.transform.position);
+                Vector3 vTargetPosition = Camera.main.WorldToScreenPoint(vMainPlayer.transform.position);
 
-				//reduce the waiting time for the next bullet!
-				if (!CanAttack && ListWeapons [vCurWeapIndex].vTimeWaited > 0f) {
-					ListWeapons [vCurWeapIndex].vTimeWaited -= Time.deltaTime;
+                //reduce the waiting time for the next bullet!
+                if (!CanAttack && ListWeapons[vCurWeapIndex].vTimeWaited > 0f) {
+                    ListWeapons[vCurWeapIndex].vTimeWaited -= Time.deltaTime;
 
                     //check if we waited enought
                     if (ListWeapons[vCurWeapIndex].vTimeWaited <= 0f)
@@ -116,11 +116,11 @@ public class Tds_Character : MonoBehaviour {
                         CanAttack = true;
                         //CanRightAttack = true;
                     }
-				}
+                }
 
                 if (IsPlayer) {
 
-                  
+
                     if (Mathf.Round(Input.GetAxisRaw("LeftTrigger")) > 0 && Mathf.Round(Input.GetAxisRaw("RightTrigger")) > 0)
                     {
                         if (vCurrentIcon2 && !vCurrentIcon2.active)
@@ -137,17 +137,19 @@ public class Tds_Character : MonoBehaviour {
 
                             pz = pz.normalized;
 
+
                             vCurrentIcon2.transform.localPosition = pz;
                         }
 
-                        ListWeapons[vCurWeapIndex].vTimeBtwShot = 0.02f; 
+                        ListWeapons[vCurWeapIndex].vTimeBtwShot = 0.02f;
                         Time.timeScale = 0.25f;
                         BulletTime = true;
                     }
 
                     else
                     {
-                        if(vCurrentIcon2)
+                        he.SetActive(false);
+                        if (vCurrentIcon2)
                             vCurrentIcon2.active = false;
 
                         Time.timeScale = 1.0f;
@@ -157,32 +159,32 @@ public class Tds_Character : MonoBehaviour {
 
                     //calculate how far is the cursor from the player
                     Vector3 v3Pos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0f);
-					v3Pos = Camera.main.ScreenToWorldPoint(v3Pos);
+                    v3Pos = Camera.main.ScreenToWorldPoint(v3Pos);
 
-					//prevent the player to rotate on itself when the cursor is above him
-					if (Vector3.Distance (new Vector3(v3Pos.x,v3Pos.y, 0f), new Vector3(transform.position.x, transform.position.y, 0f)) <= vGameManager.vCursorRange)
-						CursorIsNear = true;
-					else
-						CursorIsNear = false;
+                    //prevent the player to rotate on itself when the cursor is above him
+                    if (Vector3.Distance(new Vector3(v3Pos.x, v3Pos.y, 0f), new Vector3(transform.position.x, transform.position.y, 0f)) <= vGameManager.vCursorRange)
+                        CursorIsNear = true;
+                    else
+                        CursorIsNear = false;
 
-					if (Input.GetAxis ("Vertical") > 0 || Input.GetAxis ("Vertical") < 0 || Input.GetAxis ("Horizontal") > 0 || Input.GetAxis ("Horizontal") < 0)
+                    if (Input.GetAxis("Vertical") > 0 || Input.GetAxis("Vertical") < 0 || Input.GetAxis("Horizontal") > 0 || Input.GetAxis("Horizontal") < 0)
                     {
                         if (Mathf.Round(Input.GetAxisRaw("LeftTrigger")) > 0 && Mathf.Round(Input.GetAxisRaw("RightTrigger")) > 0)
                             IsWalking = false;
                         else
                             IsWalking = true;
                     }
-						
-					else
-						IsWalking = false;
 
-					//check if we changed walking status
-					if (IsWalking != LastWalkingStatus) {
-						LastWalkingStatus = IsWalking;
-						vLegAnimator.SetBool ("IsWalking", IsWalking);
-					}
-					
-					if (vAimIcon != null && vCurrentIcon == null) {
+                    else
+                        IsWalking = false;
+
+                    //check if we changed walking status
+                    if (IsWalking != LastWalkingStatus) {
+                        LastWalkingStatus = IsWalking;
+                        vLegAnimator.SetBool("IsWalking", IsWalking);
+                    }
+
+                    if (vAimIcon != null && vCurrentIcon == null) {
                         vCurrentIcon = Instantiate(vAimIcon, transform);
                         vCurrentIcon.transform.localPosition = new Vector3(0.0f, 1.0f, 0.0f);
                         vCurrentIcon.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
@@ -216,9 +218,9 @@ public class Tds_Character : MonoBehaviour {
 
                     vTargetPosition = vCurrentIcon.transform.position;
 
-                    if (Input.GetMouseButton (0) || Mathf.Round(Input.GetAxisRaw("LeftTrigger")) > 0) {
-						IsAttacking = true;
-					}
+                    if (Input.GetMouseButton(0) || Mathf.Round(Input.GetAxisRaw("LeftTrigger")) > 0) {
+                        IsAttacking = true;
+                    }
 
                     if (Mathf.Round(Input.GetAxisRaw("RightTrigger")) > 0)
                     {
@@ -226,179 +228,181 @@ public class Tds_Character : MonoBehaviour {
                     }
 
                     //check if the user want to change weapon
-                    if (Input.GetAxis ("Mouse ScrollWheel") > 0) {
-						GetNextWeapon (1);
-					} else if (Input.GetAxis ("Mouse ScrollWheel") < 0)
-						GetNextWeapon (-1);
+                    if (Input.GetAxis("Mouse ScrollWheel") > 0) {
+                        GetNextWeapon(1);
+                    } else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+                        GetNextWeapon(-1);
 
-					//reduce it's time
-					if (IsReloading && TimeToReload > 0f) {
-						TimeToReload -= Time.deltaTime;
-						RefreshWeaponUI ();
-					}
+                    //reduce it's time
+                    if (IsReloading && TimeToReload > 0f) {
+                        TimeToReload -= Time.deltaTime;
+                        RefreshWeaponUI();
+                    }
 
-					//get the item
-					if (LootNearby && Input.GetKeyDown ("space") && vCurLoot != null) {
+                    //get the item
+                    if (LootNearby && Input.GetKeyDown("space") && vCurLoot != null) {
 
-						//check if we already have the weapon and show it
-						bool HasAlreadyWeapon = false;
+                        //check if we already have the weapon and show it
+                        bool HasAlreadyWeapon = false;
 
-						//check if looting give a weapon
-						if (vCurLoot.vItems.GiveWeapon)
-						{
-							//give the right weapon 
-							foreach (Tds_Weapons vCurWeapon in vGameManager.vWeaponList)
-								if (vCurLoot.vItems.vWeaponName.ToString() == vCurWeapon.vWeaponName.ToString())
-								{
-									foreach (Tds_Weapons vWeapon in ListWeapons)
-										if (vWeapon.vWeaponName == vCurWeapon.vWeaponName)
-											HasAlreadyWeapon = true;
+                        //check if looting give a weapon
+                        if (vCurLoot.vItems.GiveWeapon)
+                        {
+                            //give the right weapon 
+                            foreach (Tds_Weapons vCurWeapon in vGameManager.vWeaponList)
+                                if (vCurLoot.vItems.vWeaponName.ToString() == vCurWeapon.vWeaponName.ToString())
+                                {
+                                    foreach (Tds_Weapons vWeapon in ListWeapons)
+                                        if (vWeapon.vWeaponName == vCurWeapon.vWeaponName)
+                                            HasAlreadyWeapon = true;
 
-									if (!HasAlreadyWeapon)
-									{
-										//get a copy of this weapon 
-										Tds_Weapons vNewWeapon = CopyWeapon (vCurWeapon);
+                                    if (!HasAlreadyWeapon)
+                                    {
+                                        //get a copy of this weapon 
+                                        Tds_Weapons vNewWeapon = CopyWeapon(vCurWeapon);
 
-										//new weapon is already recharge
-										vNewWeapon.vAmmoCur = vNewWeapon.vAmmoSize;
+                                        //new weapon is already recharge
+                                        vNewWeapon.vAmmoCur = vNewWeapon.vAmmoSize;
 
-										//found the weapon, add it for the player
-										ListWeapons.Add (vNewWeapon); 
-									}
-								}
-						}
+                                        //found the weapon, add it for the player
+                                        ListWeapons.Add(vNewWeapon);
+                                    }
+                                }
+                        }
 
-						if (vGameManager.vItemLootedAnim != null) {
-							//show the itemlooted going up
-							GameObject vNewObj = vGameManager.vItemLootedAnim;
+                        if (vGameManager.vItemLootedAnim != null) {
+                            //show the itemlooted going up
+                            GameObject vNewObj = vGameManager.vItemLootedAnim;
 
-							//enable it for the very first use
-							vNewObj.SetActive (true);
+                            //enable it for the very first use
+                            vNewObj.SetActive(true);
 
-							Text vLabel = vNewObj.transform.Find ("Label").GetComponent<Text> ();
+                            Text vLabel = vNewObj.transform.Find("Label").GetComponent<Text>();
 
-							//show different message
-							if (HasAlreadyWeapon) {
-								vLabel.text = "Already have :"; 
-								vLabel.color = Color.red;
-							}
-							else
-							{
-								vLabel.color = Color.white;
-								vLabel.text = "Received :"; //change info on it
-							}
+                            //show different message
+                            if (HasAlreadyWeapon) {
+                                vLabel.text = "Already have :";
+                                vLabel.color = Color.red;
+                            }
+                            else
+                            {
+                                vLabel.color = Color.white;
+                                vLabel.text = "Received :"; //change info on it
+                            }
 
-							//change info on it
-							Text vText = vNewObj.transform.Find ("ItemName").GetComponent<Text> ();
+                            //change info on it
+                            Text vText = vNewObj.transform.Find("ItemName").GetComponent<Text>();
 
-							//show the right item name
-							vText.text = vCurLoot.vItems.vName;
+                            //show the right item name
+                            vText.text = vCurLoot.vItems.vName;
 
-							//default color
-							vText.color = Color.green;
-							if (vCurLoot.vItems.vDmgType == WeaponValueType.Average)
-								vText.color = Color.yellow;
-							else if (vCurLoot.vItems.vDmgType == WeaponValueType.High)
-								vText.color = Color.red;
-							else if (vCurLoot.vItems.vDmgType == WeaponValueType.GODLY)
-								vText.color = new Color (255f, 0f, 195f, 0f);
+                            //default color
+                            vText.color = Color.green;
+                            if (vCurLoot.vItems.vDmgType == WeaponValueType.Average)
+                                vText.color = Color.yellow;
+                            else if (vCurLoot.vItems.vDmgType == WeaponValueType.High)
+                                vText.color = Color.red;
+                            else if (vCurLoot.vItems.vDmgType == WeaponValueType.GODLY)
+                                vText.color = new Color(255f, 0f, 195f, 0f);
 
-							//reshow the whole animation
-							vNewObj.GetComponent<Animator> ().SetTrigger ("Show");
-						}
+                            //reshow the whole animation
+                            vNewObj.GetComponent<Animator>().SetTrigger("Show");
+                        }
 
-						//destroy loot
-						if (!HasAlreadyWeapon) {
-							GameObject.Destroy (vCurLoot.gameObject);
-							RefreshWeaponUI ();
-						}
+                        //destroy loot
+                        if (!HasAlreadyWeapon) {
+                            GameObject.Destroy(vCurLoot.gameObject);
+                            RefreshWeaponUI();
+                        }
 
-						//clear loot
-						vCurLoot = null;
-					}
+                        //clear loot
+                        vCurLoot = null;
+                    }
 
-				} else {
+                } else {
 
-					float vDistance = Vector2.Distance (vMainPlayer.transform.position, transform.position);
+                    float vDistance = Vector2.Distance(vMainPlayer.transform.position, transform.position);
 
-					///////////////AI////////////////
-					if ((vDistance <= 20f || IsAggro) && vDistance >= vGameManager.vMeleeRange) {
-								
-						IsWalking = true;
-						IsChasing = true;
-						SeePlayer = true;
-						IsAggro = true;
-					}
-					else {
+                    ///////////////AI////////////////
+                    if ((vDistance <= 20f || IsAggro) && vDistance >= vGameManager.vMeleeRange) {
 
-						//if (vDistance >= vGameManager.vMeleeRange && IsChasing)
-						IsWalking = false;
+                        IsWalking = true;
+                        IsChasing = true;
+                        SeePlayer = true;
+                        IsAggro = true;
+                    }
+                    else {
 
-						//check if can Melee Attack
-						if (IsChasing && vDistance <= vGameManager.vMeleeRange) {
-							CanMelee = true;
-							IsAttacking = true;
-						} else
-							CanMelee = false;
-					}
-					/////////////////////////////////
-				}
+                        //if (vDistance >= vGameManager.vMeleeRange && IsChasing)
+                        IsWalking = false;
 
-				//check if we shoot
-				if (IsAttacking && CanAttack) {
+                        //check if can Melee Attack
+                        if (IsChasing && vDistance <= vGameManager.vMeleeRange) {
+                            CanMelee = true;
+                            IsAttacking = true;
+                        } else
+                            CanMelee = false;
+                    }
+                    /////////////////////////////////
+                }
 
-					//Melee (don't use any ammo)
-					if (ListWeapons [vCurWeapIndex].vWeaponType == WeaponType.Melee && CanMelee) {
+                //check if we shoot
+                if (IsAttacking && CanAttack) {
 
-						//get the amount of time to wait until we can shoot again
-						ListWeapons [vCurWeapIndex].vTimeWaited = ListWeapons [vCurWeapIndex].vTimeBtwShot;
+                    //Melee (don't use any ammo)
+                    if (ListWeapons[vCurWeapIndex].vWeaponType == WeaponType.Melee && CanMelee) {
 
-						//prevent from shooting too many time and wait for the animation to be done
-						CanAttack = false;
+                        //get the amount of time to wait until we can shoot again
+                        ListWeapons[vCurWeapIndex].vTimeWaited = ListWeapons[vCurWeapIndex].vTimeBtwShot;
 
-						//animate the hand
-						if (ListWeapons [vCurWeapIndex].AttackAnimationUsed != "")
-							vBodyAnimator.SetTrigger (ListWeapons [vCurWeapIndex].AttackAnimationUsed);
+                        //prevent from shooting too many time and wait for the animation to be done
+                        CanAttack = false;
 
-					} else {
-						//RANGED 
-						//check if has enought ammo
-						if (ListWeapons [vCurWeapIndex].vAmmoCur > 0) {
+                        //animate the hand
+                        if (ListWeapons[vCurWeapIndex].AttackAnimationUsed != "")
+                            vBodyAnimator.SetTrigger(ListWeapons[vCurWeapIndex].AttackAnimationUsed);
 
-							//get the amount of time to wait until we can shoot again
-							ListWeapons [vCurWeapIndex].vTimeWaited = ListWeapons [vCurWeapIndex].vTimeBtwShot;
+                    } else {
+                        //RANGED 
+                        //check if has enought ammo
+                        if (ListWeapons[vCurWeapIndex].vAmmoCur > 0) {
 
-							//prevent from shooting too many time and wait for the animation to be done
-							if(Mathf.Round(Input.GetAxisRaw("RightTrigger")) == 0)
-                                    CanAttack = false;
+                            //get the amount of time to wait until we can shoot again
+                            ListWeapons[vCurWeapIndex].vTimeWaited = ListWeapons[vCurWeapIndex].vTimeBtwShot;
 
-							//reduce the ammo by 1
-							ListWeapons [vCurWeapIndex].vAmmoCur--;
+                            //prevent from shooting too many time and wait for the animation to be done
+                            if (Mathf.Round(Input.GetAxisRaw("RightTrigger")) == 0)
+                                CanAttack = false;
 
-							//animate the hand
-							if (ListWeapons [vCurWeapIndex].AttackAnimationUsed != "")
-								vBodyAnimator.SetTrigger (ListWeapons [vCurWeapIndex].AttackAnimationUsed);
+                            //reduce the ammo by 1
+                            if (gee == 0)
+                            {
+                                ListWeapons[vCurWeapIndex].vAmmoCur--;
+                            }
+                            //animate the hand
+                            if (ListWeapons[vCurWeapIndex].AttackAnimationUsed != "")
+                                vBodyAnimator.SetTrigger(ListWeapons[vCurWeapIndex].AttackAnimationUsed);
 
-							//create the shot FX 
-							GameObject vShotFX = Instantiate (ListWeapons [vCurWeapIndex].vShotFX);
-							vShotFX.transform.position = CurWeaponObj.transform.Find ("BulletPos").position;
+                            //create the shot FX 
+                            GameObject vShotFX = Instantiate(ListWeapons[vCurWeapIndex].vShotFX);
+                            vShotFX.transform.position = CurWeaponObj.transform.Find("BulletPos").position;
 
-							//create the projectile on the aim obj IF EXIST
-							if (ListWeapons [vCurWeapIndex].vProjectile != null) {
+                            //create the projectile on the aim obj IF EXIST
+                            if (ListWeapons[vCurWeapIndex].vProjectile != null) {
 
-								//create as many shot with the specific angle
-								foreach (float vAngle in ListWeapons [vCurWeapIndex].vBulletAngleList) {
+                                //create as many shot with the specific angle
+                                foreach (float vAngle in ListWeapons[vCurWeapIndex].vBulletAngleList) {
 
-									//create the projectile
-									GameObject vNewProj = Instantiate (ListWeapons [vCurWeapIndex].vProjectile);
-									vNewProj.transform.position = CurWeaponObj.transform.Find ("BulletPos").position;
+                                    //create the projectile
+                                    GameObject vNewProj = Instantiate(ListWeapons[vCurWeapIndex].vProjectile);
+                                    vNewProj.transform.position = CurWeaponObj.transform.Find("BulletPos").position;
 
-									//calculate the new angle for every shot
-									Quaternion vtemp = CurWeaponObj.transform.rotation;
-									
+                                    //calculate the new angle for every shot
+                                    Quaternion vtemp = CurWeaponObj.transform.rotation;
+
                                     if (Mathf.Round(Input.GetAxisRaw("LeftTrigger")) > 0 && Mathf.Round(Input.GetAxisRaw("RightTrigger")) > 0)
                                     {
-                                        float rx = - Input.GetAxis("Horizontal");
+                                        float rx = -Input.GetAxis("Horizontal");
                                         float ry = Input.GetAxis("Vertical");
                                         float newangle = Mathf.Atan2(rx, ry);
                                         vtemp.z = newangle;
@@ -426,37 +430,37 @@ public class Tds_Character : MonoBehaviour {
                                         vNewProj.transform.rotation = vtemp;
                                     }
 
-									//send to the projectile everything it need to kill 
-									Tds_Projectile vProj = vNewProj.GetComponent<Tds_Projectile> ();
-									vGameManager.vProjectileList.Add (vProj);
-									vProj.vProjFactionType = vFactionType;
-									vProj.Speed = ListWeapons [vCurWeapIndex].vProjectileSpeed;
-									vProj.vDmg = ListWeapons [vCurWeapIndex].vDmg;
-									vProj.vGameManager = vGameManager;
-									vProj.vRebounce = ListWeapons [vCurWeapIndex].Rebounce;
-									vProj.vImpactFX = ListWeapons [vCurWeapIndex].vImpactFX;
-									vProj.IsReady = true;
-								}
-							}
-						} else {
-								if (IsReloading == false) {
-									IsReloading = true;
+                                    //send to the projectile everything it need to kill 
+                                    Tds_Projectile vProj = vNewProj.GetComponent<Tds_Projectile>();
+                                    vGameManager.vProjectileList.Add(vProj);
+                                    vProj.vProjFactionType = vFactionType;
+                                    vProj.Speed = ListWeapons[vCurWeapIndex].vProjectileSpeed;
+                                    vProj.vDmg = ListWeapons[vCurWeapIndex].vDmg;
+                                    vProj.vGameManager = vGameManager;
+                                    vProj.vRebounce = ListWeapons[vCurWeapIndex].Rebounce;
+                                    vProj.vImpactFX = ListWeapons[vCurWeapIndex].vImpactFX;
+                                    vProj.IsReady = true;
+                                }
+                            }
+                        } else {
+                            if (IsReloading == false) {
+                                IsReloading = true;
 
-								//time until we have fully reloaded
-								TimeToReload = 1f;
+                                //time until we have fully reloaded
+                                TimeToReload = 1f;
 
-								//recharging animation // then we wait until the animation is complete and tell the character we have ammo!
-								if (vBodyAnimator != null)
-									vBodyAnimator.SetTrigger ("Reload");
-							}
-						}
+                                //recharging animation // then we wait until the animation is complete and tell the character we have ammo!
+                                if (vBodyAnimator != null)
+                                    vBodyAnimator.SetTrigger("Reload");
+                            }
+                        }
 
-						//refresh all the weapon on top
-						if (IsPlayer)
-							RefreshWeaponUI ();
-					}
-				}
-	
+                        //refresh all the weapon on top
+                        if (IsPlayer)
+                            RefreshWeaponUI();
+                    }
+                }
+
                 if (IsRightAttacking && CanAttack)
                 {
 
@@ -489,8 +493,10 @@ public class Tds_Character : MonoBehaviour {
                             CanAttack = false;
 
                             //reduce the ammo by 1
-                            ListWeapons[vCurWeapIndex].vAmmoCur--;
-
+                            if (gee == 0)
+                            {
+                                ListWeapons[vCurWeapIndex].vAmmoCur--;
+                            }
                             //animate the hand
                             if (ListWeapons[vCurWeapIndex].AttackAnimationUsed != "")
                                 vBodyAnimator.SetTrigger(ListWeapons[vCurWeapIndex].AttackAnimationUsed);
@@ -515,7 +521,7 @@ public class Tds_Character : MonoBehaviour {
                                     Quaternion vtemp = CurWeaponObj.transform.rotation;
                                     if (Mathf.Round(Input.GetAxisRaw("LeftTrigger")) > 0 && Mathf.Round(Input.GetAxisRaw("RightTrigger")) > 0)
                                     {
-                                        float rx = - Input.GetAxis("Right X");
+                                        float rx = -Input.GetAxis("Right X");
                                         float ry = Input.GetAxis("Right Y");
                                         float newangle = Mathf.Atan2(rx, ry);
                                         //Debug.Log(newangle);
@@ -579,90 +585,90 @@ public class Tds_Character : MonoBehaviour {
                     }
                 }
 
-				//rotate weapon if have one
-				Vector3 vBodyPosition = vLeftHandObj.transform.position;
+                //rotate weapon if have one
+                Vector3 vBodyPosition = vLeftHandObj.transform.position;
 
-				//calcualte the angle
-				Vector3 pos = vBodyPosition;
-				Vector3 dir = vTargetPosition - pos;
+                //calcualte the angle
+                Vector3 pos = vBodyPosition;
+                Vector3 dir = vTargetPosition - pos;
 
-				Quaternion newRotation = Quaternion.LookRotation (dir, Vector3.back);
-				newRotation.x = 0f;
-				newRotation.y = 0f;
+                Quaternion newRotation = Quaternion.LookRotation(dir, Vector3.back);
+                newRotation.x = 0f;
+                newRotation.y = 0f;
 
-				//check if walking
-				if (IsWalking) {
+                //check if walking
+                if (IsWalking) {
                     vLeftArmObj.transform.localEulerAngles = new Vector3(0, 0, 0);
                     vRightArmObj.transform.localEulerAngles = new Vector3(0, 0, 180);
                     //initialise variable
                     bool vMoveUP = false;
-					bool vMoveRight = false;
-					bool vMoveLeft = false;
-					bool vMoveDown = false;
+                    bool vMoveRight = false;
+                    bool vMoveLeft = false;
+                    bool vMoveDown = false;
 
-					if (IsPlayer) {
-						if (Input.GetAxis ("Vertical") > 0 && !Input.GetButtonUp ("Vertical"))
-							vMoveUP = true;
-						if (Input.GetAxis ("Vertical") < 0 && !Input.GetButtonUp ("Vertical"))
-							vMoveDown = true;
-						if (Input.GetAxis ("Horizontal") > 0 && !Input.GetButtonUp ("Horizontal"))
-							vMoveRight = true;
-						if (Input.GetAxis ("Horizontal") < 0 && !Input.GetButtonUp ("Horizontal"))
-							vMoveLeft = true;
-					} else {
-						//shorten variables
-						float vX = transform.position.x;
-						float vY = transform.position.y;
+                    if (IsPlayer) {
+                        if (Input.GetAxis("Vertical") > 0 && !Input.GetButtonUp("Vertical"))
+                            vMoveUP = true;
+                        if (Input.GetAxis("Vertical") < 0 && !Input.GetButtonUp("Vertical"))
+                            vMoveDown = true;
+                        if (Input.GetAxis("Horizontal") > 0 && !Input.GetButtonUp("Horizontal"))
+                            vMoveRight = true;
+                        if (Input.GetAxis("Horizontal") < 0 && !Input.GetButtonUp("Horizontal"))
+                            vMoveLeft = true;
+                    } else {
+                        //shorten variables
+                        float vX = transform.position.x;
+                        float vY = transform.position.y;
 
-						//NPC
-						if (vX <= vMainPlayer.transform.position.x /*&& vXValue*/)
-							vMoveRight = true;
-						else //if (vXValue)
-							vMoveLeft = true;
+                        //NPC
+                        if (vX <= vMainPlayer.transform.position.x /*&& vXValue*/)
+                            vMoveRight = true;
+                        else //if (vXValue)
+                            vMoveLeft = true;
 
-						if (vY <= vMainPlayer.transform.position.y /*&& vYValue*/)
-							vMoveUP = true;
-						else// if (vYValue)
-							vMoveDown = true;
-					}
+                        if (vY <= vMainPlayer.transform.position.y /*&& vYValue*/)
+                            vMoveUP = true;
+                        else// if (vYValue)
+                            vMoveDown = true;
+                    }
 
-					//check which position we are rotating 
-					if (vMoveUP && vMoveRight)
-						CurWalkDirection = WalkDirection.RightUp;
-					else if (vMoveUP && vMoveLeft)
-						CurWalkDirection = WalkDirection.LeftUp;
-					else if (vMoveDown && vMoveLeft)
-						CurWalkDirection = WalkDirection.LeftDown;
-					else if (vMoveDown && vMoveRight)
-						CurWalkDirection = WalkDirection.RightDown;
-					else if (vMoveUP)
-						CurWalkDirection = WalkDirection.Up;
-					else if (vMoveLeft)
-						CurWalkDirection = WalkDirection.Left;
-					else if (vMoveDown)
-						CurWalkDirection = WalkDirection.Down;
-					else if (vMoveRight)
-						CurWalkDirection = WalkDirection.Right;
+                    //check which position we are rotating 
+                    if (vMoveUP && vMoveRight)
+                        CurWalkDirection = WalkDirection.RightUp;
+                    else if (vMoveUP && vMoveLeft)
+                        CurWalkDirection = WalkDirection.LeftUp;
+                    else if (vMoveDown && vMoveLeft)
+                        CurWalkDirection = WalkDirection.LeftDown;
+                    else if (vMoveDown && vMoveRight)
+                        CurWalkDirection = WalkDirection.RightDown;
+                    else if (vMoveUP)
+                        CurWalkDirection = WalkDirection.Up;
+                    else if (vMoveLeft)
+                        CurWalkDirection = WalkDirection.Left;
+                    else if (vMoveDown)
+                        CurWalkDirection = WalkDirection.Down;
+                    else if (vMoveRight)
+                        CurWalkDirection = WalkDirection.Right;
 
-					//calculate the new rotation
-					Vector3 temp = transform.rotation.eulerAngles;
-					temp.x = 0f;
-					temp.y = 0f;
+                    //calculate the new rotation
+                    Vector3 temp = transform.rotation.eulerAngles;
+                    temp.x = 0f;
+                    temp.y = 0f;
                     if (IsPlayer)
                         temp.z = 0f;
                     else
                         temp.z = GetWalkingRotation();
 
-                    transform.rotation = Quaternion.Euler (temp);
+                    transform.rotation = Quaternion.Euler(temp);
 
-					//play leg animation backward
-					float vBackForward = 1;
-					if (vMoveDown) {
-						vBackForward = -1;
-					}
+                    //play leg animation backward
+                    float vBackForward = 1;
+                    if (vMoveDown) {
+                        vBackForward = -1;
+                    }
 
-					//show the animation on the right direction
-					vLegAnimator.SetFloat ("Direction", vBackForward);
+                    //show the animation on the right direction
+                    vLegAnimator.SetFloat("Direction", vBackForward);
 
                     //check where it's heading 
                     if (IsPlayer)
@@ -681,16 +687,48 @@ public class Tds_Character : MonoBehaviour {
                         if (CanWalk)
                             transform.Translate(vDestination);
                     }
-				}
-			
-				//rotate the body correctly
-				//can only look at the player if he can see it
-				if (CanRotateBody())
-					vBodyObj.transform.rotation = Quaternion.Slerp (vBodyObj.transform.rotation, newRotation, 1f);
+                }
 
-				vCamObj.transform.rotation = CamStartRotation;	
-			}
-		}
+                //rotate the body correctly
+                //can only look at the player if he can see it
+                if (CanRotateBody())
+                    vBodyObj.transform.rotation = Quaternion.Slerp(vBodyObj.transform.rotation, newRotation, 1f);
+
+                vCamObj.transform.rotation = CamStartRotation;
+            }
+        }
+
+        if (Mathf.Round(Input.GetAxisRaw("LeftTrigger")) > 0 && Mathf.Round(Input.GetAxisRaw("RightTrigger")) > 0&&IsPlayer)
+        {
+             
+            float rx = Input.GetAxis("Horizontal");
+            float ry = Input.GetAxis("Vertical");
+
+            Vector3 pz = new Vector3(rx, ry, 0);
+            float rtx = Input.GetAxis("Right X");
+            float rty = Input.GetAxis("Right Y");
+            Vector3 ptz = new Vector3(rtx, rty, 0);
+            if (Mathf.Abs(Vector3.Distance(ptz, pz)) < .3f)
+            {
+
+
+                if (!he.active)
+                {
+                    he1.GetComponent<inithe>().a = 1;
+
+                }
+                he.SetActive(true);
+                gee = 1;
+                vCurrentIcon2.active = false;
+             
+            }
+            else { he.SetActive(false); gee = 0; }
+        }
+
+
+
+
+
 	}
 
 	void GetNextWeapon(int vNext)
