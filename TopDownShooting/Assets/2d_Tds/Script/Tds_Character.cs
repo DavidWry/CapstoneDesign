@@ -67,6 +67,8 @@ public class Tds_Character : MonoBehaviour {
 
 	private bool GameStarted = false;
 
+    private bool WeaponCombine = false;
+
 	// Use this for initialization
 	void Start () {
 		CamStartRotation = Camera.main.transform.rotation;
@@ -118,6 +120,18 @@ public class Tds_Character : MonoBehaviour {
                     }
                 }
 
+                if (!CanAttack && ListWeapons[1].vTimeWaited > 0f)
+                {
+                    ListWeapons[1].vTimeWaited -= Time.deltaTime;
+
+                    //check if we waited enought
+                    if (ListWeapons[1].vTimeWaited <= 0f)
+                    {
+                        CanAttack = true;
+                        //CanRightAttack = true;
+                    }
+                }
+
                 if (IsPlayer) {
 
 
@@ -141,8 +155,8 @@ public class Tds_Character : MonoBehaviour {
                             vCurrentIcon2.transform.localPosition = pz;
                         }
 
-                        ListWeapons[vCurWeapIndex].vTimeBtwShot = 0.02f;
-                        Time.timeScale = 0.25f;
+                        //ListWeapons[vCurWeapIndex].vTimeBtwShot = 0.02f;
+                        //Time.timeScale = 0.5f;
                         BulletTime = true;
                     }
 
@@ -154,7 +168,7 @@ public class Tds_Character : MonoBehaviour {
 
                         Time.timeScale = 1.0f;
                         BulletTime = false;
-                        ListWeapons[vCurWeapIndex].vTimeBtwShot = 0.1f;
+                        //ListWeapons[vCurWeapIndex].vTimeBtwShot = 0.1f;
                     }
 
                     //calculate how far is the cursor from the player
@@ -222,7 +236,7 @@ public class Tds_Character : MonoBehaviour {
                         IsAttacking = true;
                     }
 
-                    if (Mathf.Round(Input.GetAxisRaw("RightTrigger")) > 0)
+                    if (Mathf.Round(Input.GetAxisRaw("RightTrigger")) > 0 && WeaponCombine == false)
                     {
                         IsRightAttacking = true;
                     }
@@ -483,11 +497,11 @@ public class Tds_Character : MonoBehaviour {
                     {
                         //RANGED 
                         //check if has enought ammo
-                        if (ListWeapons[vCurWeapIndex].vAmmoCur > 0)
+                        if (ListWeapons[1].vAmmoCur > 0)
                         {
 
                             //get the amount of time to wait until we can shoot again
-                            ListWeapons[vCurWeapIndex].vTimeWaited = ListWeapons[vCurWeapIndex].vTimeBtwShot;
+                            ListWeapons[1].vTimeWaited = ListWeapons[1].vTimeBtwShot;
 
                             //prevent from shooting too many time and wait for the animation to be done
                             CanAttack = false;
@@ -495,26 +509,26 @@ public class Tds_Character : MonoBehaviour {
                             //reduce the ammo by 1
                             if (gee == 0)
                             {
-                                ListWeapons[vCurWeapIndex].vAmmoCur--;
+                                ListWeapons[1].vAmmoCur--;
                             }
                             //animate the hand
-                            if (ListWeapons[vCurWeapIndex].AttackAnimationUsed != "")
-                                vBodyAnimator.SetTrigger(ListWeapons[vCurWeapIndex].AttackAnimationUsed);
+                            if (ListWeapons[1].AttackAnimationUsed != "")
+                                vBodyAnimator.SetTrigger(ListWeapons[1].AttackAnimationUsed);
 
                             //create the shot FX 
                             GameObject vShotFX = Instantiate(ListWeapons[vCurWeapIndex].vShotFX);
                             vShotFX.transform.position = CurWeaponObj.transform.Find("BulletPos").position;
 
                             //create the projectile on the aim obj IF EXIST
-                            if (ListWeapons[vCurWeapIndex].vProjectile != null)
+                            if (ListWeapons[1].vProjectile != null)
                             {
 
                                 //create as many shot with the specific angle
-                                foreach (float vAngle in ListWeapons[vCurWeapIndex].vBulletAngleList)
+                                foreach (float vAngle in ListWeapons[1].vBulletAngleList)
                                 {
 
                                     //create the projectile
-                                    GameObject vNewProj = Instantiate(ListWeapons[vCurWeapIndex].vProjectile);
+                                    GameObject vNewProj = Instantiate(ListWeapons[1].vProjectile);
                                     vNewProj.transform.position = RightAddPos.transform.position;
 
                                     //calculate the new angle for every shot
@@ -555,11 +569,11 @@ public class Tds_Character : MonoBehaviour {
                                     Tds_Projectile vProj = vNewProj.GetComponent<Tds_Projectile>();
                                     vGameManager.vProjectileList.Add(vProj);
                                     vProj.vProjFactionType = vFactionType;
-                                    vProj.Speed = ListWeapons[vCurWeapIndex].vProjectileSpeed;
-                                    vProj.vDmg = ListWeapons[vCurWeapIndex].vDmg;
+                                    vProj.Speed = ListWeapons[1].vProjectileSpeed;
+                                    vProj.vDmg = ListWeapons[1].vDmg;
                                     vProj.vGameManager = vGameManager;
-                                    vProj.vRebounce = ListWeapons[vCurWeapIndex].Rebounce;
-                                    vProj.vImpactFX = ListWeapons[vCurWeapIndex].vImpactFX;
+                                    vProj.vRebounce = ListWeapons[1].Rebounce;
+                                    vProj.vImpactFX = ListWeapons[1].vImpactFX;
                                     vProj.IsReady = true;
                                 }
                             }
@@ -708,10 +722,9 @@ public class Tds_Character : MonoBehaviour {
             float rtx = Input.GetAxis("Right X");
             float rty = Input.GetAxis("Right Y");
             Vector3 ptz = new Vector3(rtx, rty, 0);
-            if (Mathf.Abs(Vector3.Distance(ptz, pz)) < .3f)
+            if (Mathf.Abs(Vector3.Distance(ptz, pz)) < .8f)
             {
-
-
+                WeaponCombine = true;
                 if (!he.active)
                 {
                     he1.GetComponent<inithe>().a = 1;
@@ -722,7 +735,7 @@ public class Tds_Character : MonoBehaviour {
                 vCurrentIcon2.active = false;
              
             }
-            else { he.SetActive(false); gee = 0; }
+            else { he.SetActive(false); gee = 0; WeaponCombine = false; }
         }
 
 
@@ -796,8 +809,29 @@ public class Tds_Character : MonoBehaviour {
 			RefreshWeaponUI ();
 	}
 
-	//character can now shoot again
-	public void FinishShooting()
+    public void RechargeRightWeapon()
+    {
+        //leave on ground a clip if there is any
+        if (ListWeapons[1].vClipObj != null)
+        {
+            GameObject vClip = Instantiate(ListWeapons[1].vClipObj);
+            vClip.transform.position = transform.position;
+        }
+
+        //reload is complete
+        IsReloading = false;
+        TimeToReload = 0f;
+
+        //recharge
+        ListWeapons[1].vAmmoCur = ListWeapons[1].vAmmoSize;
+
+        //refresh recharge
+        if (IsPlayer)
+            RefreshWeaponUI();
+    }
+
+    //character can now shoot again
+    public void FinishShooting()
 	{
 		//reload is complete
 		//IsShooting = false;

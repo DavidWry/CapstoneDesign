@@ -18,7 +18,8 @@ public class Tds_HandAnimation : MonoBehaviour {
 	public void FinishRecharging()
 	{
 		vCurCharacter.RechargeWeapon ();
-	}
+        vCurCharacter.RechargeRightWeapon();
+    }
 
 	public void FinishShooting()
 	{
