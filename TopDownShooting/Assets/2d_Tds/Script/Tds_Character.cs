@@ -49,7 +49,8 @@ public class Tds_Character : MonoBehaviour {
 	private AudioSource vAudioSource;
 	private bool IsReloading = false;
 	private bool CanAttack = true;
-	private bool CanMelee = false;
+    private bool CanRightAttack = true;
+    private bool CanMelee = false;
 	private bool IsAggro = false;
 	//private float TimeWaited = 0f;
 	private bool SeePlayer = false;
@@ -68,9 +69,13 @@ public class Tds_Character : MonoBehaviour {
 	private bool GameStarted = false;
 
     private bool WeaponCombine = false;
+    private float CombineTime = 0;
+    public Transform MiddleTransform;
+    private float DuringTime = 0;
+    private bool AngleControl = false;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 		CamStartRotation = Camera.main.transform.rotation;
 		vAudioSource = GetComponent<AudioSource> ();
 		vCamObj = Camera.main.gameObject;
@@ -120,15 +125,15 @@ public class Tds_Character : MonoBehaviour {
                     }
                 }
 
-                if (!CanAttack && ListWeapons[1].vTimeWaited > 0f)
+                if (!CanRightAttack && ListWeapons[1].vTimeWaited > 0f)
                 {
                     ListWeapons[1].vTimeWaited -= Time.deltaTime;
 
                     //check if we waited enought
                     if (ListWeapons[1].vTimeWaited <= 0f)
                     {
-                        CanAttack = true;
-                        //CanRightAttack = true;
+                        //CanAttack = true;
+                        CanRightAttack = true;
                     }
                 }
 
@@ -211,7 +216,7 @@ public class Tds_Character : MonoBehaviour {
                         vCurrentIcon2.active = false;
 
                     } else if (vCurrentIcon != null) {
-                        if (Input.GetAxis("Right X") > 0 || Input.GetAxis("Right X") < -0 || Input.GetAxis("Right Y") < -0 || Input.GetAxis("Right Y") > 0)
+                        if (Input.GetAxis("Right X") > 0.6 || Input.GetAxis("Right X") < -0.6 || Input.GetAxis("Right Y") < -0.6 || Input.GetAxis("Right Y") > 0.6)
                         {
                             float rx = Input.GetAxis("Right X");
                             float ry = Input.GetAxis("Right Y");
@@ -232,7 +237,7 @@ public class Tds_Character : MonoBehaviour {
 
                     vTargetPosition = vCurrentIcon.transform.position;
 
-                    if (Input.GetMouseButton(0) || Mathf.Round(Input.GetAxisRaw("LeftTrigger")) > 0) {
+                    if  (Mathf.Round(Input.GetAxisRaw("LeftTrigger")) > 0 && WeaponCombine == false) {
                         IsAttacking = true;
                     }
 
@@ -385,7 +390,7 @@ public class Tds_Character : MonoBehaviour {
                             ListWeapons[vCurWeapIndex].vTimeWaited = ListWeapons[vCurWeapIndex].vTimeBtwShot;
 
                             //prevent from shooting too many time and wait for the animation to be done
-                            if (Mathf.Round(Input.GetAxisRaw("RightTrigger")) == 0)
+                            //if (Mathf.Round(Input.GetAxisRaw("RightTrigger")) == 0)
                                 CanAttack = false;
 
                             //reduce the ammo by 1
@@ -475,7 +480,98 @@ public class Tds_Character : MonoBehaviour {
                     }
                 }
 
-                if (IsRightAttacking && CanAttack)
+                if (WeaponCombine)
+                {
+                    //CombineTime += Time.deltaTime;
+                    if (CombineTime >= 6)
+                    {
+                        WeaponCombine = false;
+                        //CombineTime = 0;
+                    }
+                    if (CanRightAttack && CombineTime >=1)
+                    {
+
+                        //get the amount of time to wait until we can shoot again
+                        ListWeapons[1].vTimeWaited = ListWeapons[1].vTimeBtwShot;
+
+                        //prevent from shooting too many time and wait for the animation to be done
+                        //if (Mathf.Round(Input.GetAxisRaw("RightTrigger")) == 0)
+                            CanRightAttack = false;
+
+                        //reduce the ammo by 1
+                        if (gee == 0)
+                        {
+                            //ListWeapons[vCurWeapIndex].vAmmoCur--;
+                        }
+                        //animate the hand
+                        if (ListWeapons[vCurWeapIndex].AttackAnimationUsed != "")
+                            vBodyAnimator.SetTrigger(ListWeapons[vCurWeapIndex].AttackAnimationUsed);
+
+                        //create the shot FX 
+                        GameObject vShotFX = Instantiate(ListWeapons[vCurWeapIndex].vShotFX);
+                        vShotFX.transform.position = MiddleTransform.position;
+
+                        //create the projectile on the aim obj IF EXIST
+                        if (ListWeapons[vCurWeapIndex].vProjectile != null)
+                        {
+
+                            //create as many shot with the specific angle
+                            foreach (float vAngle in ListWeapons[vCurWeapIndex].vBulletAngleList)
+                            {
+
+                                //create the projectile
+                                GameObject vNewProj = Instantiate(ListWeapons[1].vProjectile);
+                                vNewProj.transform.position = MiddleTransform.position;
+
+                                //calculate the new angle for every shot
+                                Quaternion vtemp = CurWeaponObj.transform.rotation;
+
+                                if (Mathf.Round(Input.GetAxisRaw("LeftTrigger")) > 0 && Mathf.Round(Input.GetAxisRaw("RightTrigger")) > 0)
+                                {
+                                    float rx = -Input.GetAxis("Right X");
+                                    float ry = Input.GetAxis("Right Y");
+                                    float newangle = Mathf.Atan2(rx, ry);
+                                    vtemp.z = newangle;
+                                    vNewProj.transform.eulerAngles = new Vector3(CurWeaponObj.transform.eulerAngles.x, CurWeaponObj.transform.eulerAngles.y, Mathf.Atan2(rx, ry) * Mathf.Rad2Deg);
+
+                                    //calculate the new angle for left arm
+                                    Quaternion vtempAngle = CurWeaponObj.transform.rotation;
+                                    float rtempx = -Input.GetAxis("Horizontal");
+                                    float rtempy = Input.GetAxis("Vertical");
+                                    float newtempangle = Mathf.Atan2(rtempx, rtempy);
+                                    vtempAngle.z = newtempangle;
+                                    vLeftArmObj.transform.eulerAngles = new Vector3(CurWeaponObj.transform.eulerAngles.x, CurWeaponObj.transform.eulerAngles.y, Mathf.Atan2(rtempx, rtempy) * Mathf.Rad2Deg);
+                                    //calculate the new angle for left arm
+                                    Quaternion vtempAngle2 = CurWeaponObj.transform.rotation;
+                                    float rtempx2 = Input.GetAxis("Right X");
+                                    float rtempy2 = -Input.GetAxis("Right Y");
+
+                                    float newtempangle2 = Mathf.Atan2(rtempx2, rtempy2);
+                                    vtempAngle2.z = newtempangle2;
+                                    vRightArmObj.transform.eulerAngles = new Vector3(CurWeaponObj.transform.eulerAngles.x, CurWeaponObj.transform.eulerAngles.y, Mathf.Atan2(rtempx2, rtempy2) * Mathf.Rad2Deg);
+                                }
+                                else
+                                {
+                                    vtemp.z += vAngle;
+                                    vNewProj.transform.rotation = vtemp;
+                                }
+
+                                //send to the projectile everything it need to kill 
+                                Tds_Projectile vProj = vNewProj.GetComponent<Tds_Projectile>();
+                                vGameManager.vProjectileList.Add(vProj);
+                                vProj.vProjFactionType = vFactionType;
+                                vProj.Speed = ListWeapons[vCurWeapIndex].vProjectileSpeed;
+                                vProj.vDmg = ListWeapons[vCurWeapIndex].vDmg;
+                                vProj.vGameManager = vGameManager;
+                                vProj.vRebounce = ListWeapons[vCurWeapIndex].Rebounce;
+                                vProj.vImpactFX = ListWeapons[vCurWeapIndex].vImpactFX;
+                                vProj.IsReady = true;
+                            }
+                        }
+                    }
+                }
+
+                if (IsRightAttacking && CanRightAttack)
                 {
 
                     //Melee (don't use any ammo)
@@ -486,7 +582,7 @@ public class Tds_Character : MonoBehaviour {
                         ListWeapons[vCurWeapIndex].vTimeWaited = ListWeapons[vCurWeapIndex].vTimeBtwShot;
 
                         //prevent from shooting too many time and wait for the animation to be done
-                        CanAttack = false;
+                        CanRightAttack = false;
 
                         //animate the hand
                         if (ListWeapons[vCurWeapIndex].AttackAnimationUsed != "")
@@ -504,7 +600,7 @@ public class Tds_Character : MonoBehaviour {
                             ListWeapons[1].vTimeWaited = ListWeapons[1].vTimeBtwShot;
 
                             //prevent from shooting too many time and wait for the animation to be done
-                            CanAttack = false;
+                            CanRightAttack = false;
 
                             //reduce the ammo by 1
                             if (gee == 0)
@@ -722,20 +818,58 @@ public class Tds_Character : MonoBehaviour {
             float rtx = Input.GetAxis("Right X");
             float rty = Input.GetAxis("Right Y");
             Vector3 ptz = new Vector3(rtx, rty, 0);
-            if (Mathf.Abs(Vector3.Distance(ptz, pz)) < .8f)
+            if (CombineTime < 1)
             {
-                WeaponCombine = true;
-                if (!he.active)
+                if (Mathf.Abs(Vector3.Distance(ptz, pz)) < .6f)
                 {
-                    he1.GetComponent<inithe>().a = 1;
-
+                    AngleControl = true;
                 }
-                he.SetActive(true);
+                else
+                {
+                    AngleControl = false;
+                }
+            }
+            else if (Mathf.Abs(Vector3.Distance(ptz, pz)) > 1.2f)
+            {
+                AngleControl = false;
+            }
+            if (AngleControl)
+            {
+                CombineTime += Time.deltaTime;
+                if (!he.active)
+                {                   
+                    if (CombineTime >= 0.5)
+                        WeaponCombine = true;
+                    he1.GetComponent<inithe>().a = 1;
+                    if (CombineTime >= 1)
+                        he.SetActive(true);
+                }
+                else
+                {
+                    if(!WeaponCombine)
+                    {
+                        he.SetActive(false);
+                        vCurrentIcon2.active = true;
+                    }
+                }
                 gee = 1;
                 vCurrentIcon2.active = false;
              
             }
-            else { he.SetActive(false); gee = 0; WeaponCombine = false; }
+            else
+            {
+                he.SetActive(false);
+                gee = 0;
+                WeaponCombine = false;
+                CombineTime = 0;
+                DuringTime = 0;
+            }
+        }
+        else
+        {
+            WeaponCombine = false;
+            CombineTime = 0;
+            AngleControl = false;
         }
 
 
