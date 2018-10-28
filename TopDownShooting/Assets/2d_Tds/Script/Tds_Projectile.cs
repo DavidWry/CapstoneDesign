@@ -19,6 +19,7 @@ public class Tds_Projectile : MonoBehaviour {
 	void Start () {
 		vRB = GetComponent<Rigidbody2D> ();
 		vCollider = GetComponent<CircleCollider2D> ();
+        
 	}
 
 	void FixedUpdate ()
@@ -30,9 +31,9 @@ public class Tds_Projectile : MonoBehaviour {
 			//cannot collider with other projectile
 			foreach (Tds_Projectile CurProj in vGameManager.vProjectileList)
 				Physics2D.IgnoreCollision (CurProj.GetComponent<Collider2D> (), GetComponent<Collider2D> (), true);
-				
-			//calcualte how fast the bullet is in the air
-			vRB.velocity = transform.up * Speed ;
+
+            //calcualte how fast the bullet is in the air
+            vRB.velocity = transform.up * Speed;
 		}
 	}
 

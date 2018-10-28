@@ -496,8 +496,9 @@ public class Tds_Character : MonoBehaviour {
 
                         //prevent from shooting too many time and wait for the animation to be done
                         //if (Mathf.Round(Input.GetAxisRaw("RightTrigger")) == 0)
-                            CanRightAttack = false;
+                        CanRightAttack = false;
 
+                        
                         //reduce the ammo by 1
                         if (gee == 0)
                         {
@@ -508,8 +509,8 @@ public class Tds_Character : MonoBehaviour {
                             vBodyAnimator.SetTrigger(ListWeapons[vCurWeapIndex].AttackAnimationUsed);
 
                         //create the shot FX 
-                        GameObject vShotFX = Instantiate(ListWeapons[vCurWeapIndex].vShotFX);
-                        vShotFX.transform.position = MiddleTransform.position;
+                        //GameObject vShotFX = Instantiate(ListWeapons[vCurWeapIndex].vShotFX);
+                        //vShotFX.transform.position = MiddleTransform.position;
 
                         //create the projectile on the aim obj IF EXIST
                         if (ListWeapons[vCurWeapIndex].vProjectile != null)
@@ -520,8 +521,8 @@ public class Tds_Character : MonoBehaviour {
                             {
 
                                 //create the projectile
-                                GameObject vNewProj = Instantiate(ListWeapons[1].vProjectile);
-                                vNewProj.transform.position = MiddleTransform.position;
+                                //GameObject vNewProj = Instantiate(ListWeapons[1].vProjectile);
+                                //vNewProj.transform.position = MiddleTransform.position;
 
                                 //calculate the new angle for every shot
                                 Quaternion vtemp = CurWeaponObj.transform.rotation;
@@ -532,7 +533,7 @@ public class Tds_Character : MonoBehaviour {
                                     float ry = Input.GetAxis("Right Y");
                                     float newangle = Mathf.Atan2(rx, ry);
                                     vtemp.z = newangle;
-                                    vNewProj.transform.eulerAngles = new Vector3(CurWeaponObj.transform.eulerAngles.x, CurWeaponObj.transform.eulerAngles.y, Mathf.Atan2(rx, ry) * Mathf.Rad2Deg);
+                                    //vNewProj.transform.eulerAngles = new Vector3(CurWeaponObj.transform.eulerAngles.x, CurWeaponObj.transform.eulerAngles.y, Mathf.Atan2(rx, ry) * Mathf.Rad2Deg);
 
                                     //calculate the new angle for left arm
                                     Quaternion vtempAngle = CurWeaponObj.transform.rotation;
@@ -553,9 +554,10 @@ public class Tds_Character : MonoBehaviour {
                                 else
                                 {
                                     vtemp.z += vAngle;
-                                    vNewProj.transform.rotation = vtemp;
+                                    //vNewProj.transform.rotation = vtemp;
                                 }
 
+                                /*
                                 //send to the projectile everything it need to kill 
                                 Tds_Projectile vProj = vNewProj.GetComponent<Tds_Projectile>();
                                 vGameManager.vProjectileList.Add(vProj);
@@ -565,7 +567,7 @@ public class Tds_Character : MonoBehaviour {
                                 vProj.vGameManager = vGameManager;
                                 vProj.vRebounce = ListWeapons[vCurWeapIndex].Rebounce;
                                 vProj.vImpactFX = ListWeapons[vCurWeapIndex].vImpactFX;
-                                vProj.IsReady = true;
+                                vProj.IsReady = true;*/
                             }
                         }
                     }

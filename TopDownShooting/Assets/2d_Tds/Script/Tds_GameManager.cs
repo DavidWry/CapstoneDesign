@@ -110,7 +110,7 @@ public class Tds_GameManager : MonoBehaviour {
 	public void SwitchScene(string vNewScene)
 	{
 		if (vNewScene != null)
-			SceneManager.LoadScene (vNewScene);
+			SceneManager.LoadScene (0);
 	}
 
 	public void RefreshPlayerHP(float vPerc)

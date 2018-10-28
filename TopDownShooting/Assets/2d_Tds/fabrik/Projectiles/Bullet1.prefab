@@ -96,6 +96,8 @@ MonoBehaviour:
   vImpactFX: {fileID: 0}
   vProjFactionType: 1
   vGameManager: {fileID: 0}
+  Follow: 0
+  Target: {fileID: 0}
 --- !u!212 &212168061343113902
 SpriteRenderer:
   m_ObjectHideFlags: 1
